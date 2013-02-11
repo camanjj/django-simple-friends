@@ -27,7 +27,7 @@ def create_friendship_instance_post_syncdb(sender,
                                            created_models,
                                            verbosity,
                                            **kwargs):
-    from shindig import settings
+    from django.conf import settings
     from friends.models import Friendship
     created = 0
     print "Creating friendships"
@@ -46,7 +46,7 @@ def create_userblock_instance_post_syncdb(sender,
                                           created_models,
                                           verbosity,
                                           **kwargs):
-    from shindig import settings
+    from django.conf import settings
     from friends.models import UserBlocks
     created = 0
     print "Creating user blocks"
