@@ -19,13 +19,13 @@ Models
 import datetime
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
-from django.contrib.auth.models import User
+from shindig import settings
 import signals
 
 
 class FriendshipRequest(models.Model):
-    from_user = models.ForeignKey(User, related_name="invitations_from")
-    to_user = models.ForeignKey(User, related_name="invitations_to")
+    from_user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="invitations_from")
+    to_user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="invitations_to")
     message = models.CharField(max_length=200, blank=True)
     created = models.DateTimeField(default=datetime.datetime.now,
                                    editable=False)
@@ -58,7 +58,7 @@ class FriendshipRequest(models.Model):
 
 class FriendshipManager(models.Manager):
     def friends_of(self, user, shuffle=False):
-        qs = User.objects.filter(friendship__friends__user=user)
+        qs = settings.AUTH_USER_MODEL.objects.filter(friendship__friends__user=user)
         if shuffle:
             qs = qs.order_by('?')
         return qs
@@ -87,7 +87,7 @@ class FriendshipManager(models.Manager):
 
 
 class Friendship(models.Model):
-    user = models.OneToOneField(User, related_name='friendship')
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, related_name='friendship')
     friends = models.ManyToManyField('self', symmetrical=True)
 
     objects = FriendshipManager()
@@ -111,8 +111,8 @@ class Friendship(models.Model):
 
 
 class UserBlocks(models.Model):
-    user = models.OneToOneField(User, related_name='user_blocks')
-    blocks = models.ManyToManyField(User, related_name='blocked_by_set')
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, related_name='user_blocks')
+    blocks = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='blocked_by_set')
 
     class Meta:
         verbose_name = verbose_name_plural = _(u'user blocks')
@@ -133,10 +133,10 @@ class UserBlocks(models.Model):
 
 # Signal connections
 models.signals.post_save.connect(signals.create_friendship_instance,
-                                 sender=User,
+                                 sender=settings.AUTH_USER_MODEL,
                                  dispatch_uid='friends.signals.create_' \
                                               'friendship_instance')
 models.signals.post_save.connect(signals.create_userblocks_instance,
-                                 sender=User,
+                                 sender=settings.AUTH_USER_MODEL,
                                  dispatch_uid='friends.signals.create_' \
                                               'userblocks_instance')
