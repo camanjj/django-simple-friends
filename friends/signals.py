@@ -1,5 +1,6 @@
 from django.dispatch import Signal
-
+from django.contrib.auth import get_user_model
+User = get_user_model
 
 friendship_accepted = Signal()
 
@@ -32,7 +33,7 @@ def create_friendship_instance_post_syncdb(sender,
     created = 0
     print "Creating friendships"
     #if settings.AUTH_USER_MODEL in created_models:
-	for user in settings.AUTH_USER_MODEL.objects.filter(friendship__isnull=True):
+	for user in User.objects.filter(friendship__isnull=True):
 		Friendship.objects.create(user=user)
 		created += 1
 		if verbosity >= 2:
@@ -51,7 +52,7 @@ def create_userblock_instance_post_syncdb(sender,
     created = 0
     print "Creating user blocks"
     #if settings.AUTH_USER_MODEL in created_models:
-	for user in settings.AUTH_USER_MODEL.objects.filter(user_blocks__isnull=True):
+	for user in User.objects.filter(user_blocks__isnull=True):
 		UserBlocks.objects.create(user=user)
 		created += 1
 		if verbosity >= 2:

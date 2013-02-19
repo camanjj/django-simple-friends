@@ -20,7 +20,10 @@ import datetime
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
+from django.contrib.auth import get_user_model
 import signals
+
+User = get_user_model
 
 
 class FriendshipRequest(models.Model):
@@ -58,7 +61,7 @@ class FriendshipRequest(models.Model):
 
 class FriendshipManager(models.Manager):
     def friends_of(self, user, shuffle=False):
-        qs = settings.AUTH_USER_MODEL.objects.filter(friendship__friends__user=user)
+        qs = User.objects.filter(friendship__friends__user=user)
         if shuffle:
             qs = qs.order_by('?')
         return qs
@@ -133,10 +136,10 @@ class UserBlocks(models.Model):
 
 # Signal connections
 models.signals.post_save.connect(signals.create_friendship_instance,
-                                 sender=settings.AUTH_USER_MODEL,
+                                 sender=User,
                                  dispatch_uid='friends.signals.create_' \
                                               'friendship_instance')
 models.signals.post_save.connect(signals.create_userblocks_instance,
-                                 sender=settings.AUTH_USER_MODEL,
+                                 sender=User,
                                  dispatch_uid='friends.signals.create_' \
                                               'userblocks_instance')
